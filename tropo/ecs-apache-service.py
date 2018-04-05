@@ -345,7 +345,7 @@ target_group = t.add_resource(elasticloadbalancingv2.TargetGroup(
     HealthyThresholdCount="4",
     Matcher=elasticloadbalancingv2.Matcher(HttpCode="200,302"),
     UnhealthyThresholdCount="3",
-    VpcId=ImportValue(Sub("${NetworkStack}-VPC")),
+    VpcId=ImportValue(Sub("${NetworkStack}-Vpc")),
     Tags=[{
         "Key": "TargetGroupName",
         "Value": Join("", ["Tg-", Ref(container_name)])
@@ -493,7 +493,7 @@ listener_rule2 = t.add_resource(elasticloadbalancingv2.ListenerRule(
 # Allow NAT instances to access Public ALB
 sg_alb_public_ingress_rules = {}
 sg_alb_public_ingress_rules443 = {}
-for az in ["1", "2", "3"]:
+for az in ["A", "B", "C"]:
     sg_alb_public_ingress_rules[az] = t.add_resource(
         ec2.SecurityGroupIngress(
             "ApacheIngressRule" + az,
