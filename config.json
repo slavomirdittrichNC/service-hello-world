@@ -1,0 +1,16 @@
+{
+  "Parameters": {
+    "ContainerName": "ecs-apache",
+    "ContainerPort": "80",
+    "Ecr": "632826021673.dkr.ecr.eu-west-1.amazonaws.com",
+    "EcsStack": "UAT-ecs-stateless",
+    "EncryptLambdaStack": "cfn-encrypt",
+    "Family": "UAT-ecs-apache",
+    "ListenerPriority": "20",
+    "NetworkStack": "UAT-network",
+    "ServicePath": "/apache",
+    "AutoscalingMax": "3",
+    "AutoscalingMin": "3",
+    "HealthCheckPath": "/health/"
+  }
+}

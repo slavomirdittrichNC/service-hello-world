@@ -1,0 +1,43 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - echo Debug $AWS_DEFAULT_REGION $IMAGE_REPO_NAME $AWS_ACCOUNT_ID
+      - bash --version
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - IMAGE_TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION |cut -c 1-7)--$(echo $CODEBUILD_BUILD_ID |sed 's/.*://')"
+      - echo Tagging with $IMAGE_TAG
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Build completed on `date`
+      - . ./buildconfig.sh
+      - echo Cfn build started on `date`
+      - cd tropo
+      - python ${IMAGE_REPO_NAME}-service.py > ../${IMAGE_REPO_NAME}-service.template.tmp
+      - cd ..
+      - echo Build completed on `date`
+
+  post_build:
+    commands:
+      - echo Testing image
+      - echo Test passed
+      - echo Pushing the Docker image and renaming template...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - mv ${IMAGE_REPO_NAME}-service.template.tmp ${IMAGE_REPO_NAME}-service.template
+
+artifacts:
+  files:
+    - 'ecs-apache-service.template'
+    - 'UAT-config.json'
+    - 'PROD-config.json'
+    - 'imageconfig.json'
