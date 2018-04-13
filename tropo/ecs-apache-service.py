@@ -458,7 +458,7 @@ task_definition = t.add_resource(ecs.TaskDefinition(
                 ),
                 ecs.Environment(
                     Name="ALB",
-                    Value=ImportValue(Sub("${AlbStack}-AppLbDNSName"))
+                    Value=ImportValue(Sub("${AlbStack}-AlbPrivateDNSName"))
                 )
             ],
         )
