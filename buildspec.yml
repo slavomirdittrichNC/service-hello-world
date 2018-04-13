@@ -24,9 +24,7 @@ phases:
       - echo Build completed on `date`
       - . ./buildconfig.sh
       - echo Cfn build started on `date`
-      - cd tropo
-      - python ${IMAGE_REPO_NAME}-service.py > ../${IMAGE_REPO_NAME}-service.template.tmp
-      - cd ..
+      - python tropo/${IMAGE_REPO_NAME}-service.py > ${IMAGE_REPO_NAME}-service.template.tmp
       - echo Build completed on `date`
   post_build:
     commands:
