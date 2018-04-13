@@ -8,7 +8,7 @@
     "Family": "UAT-ecs-apache",
     "ListenerPriority": "20",
     "NetworkStack": "UAT-network",
-    "ServicePath": "/apache",
+    "ServicePath": "/apache*",
     "AutoscalingMax": "3",
     "AutoscalingMin": "3",
     "HealthCheckPath": "/health/"

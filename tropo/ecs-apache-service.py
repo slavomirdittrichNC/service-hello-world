@@ -18,9 +18,8 @@ def update_dummy_wch(template):
 
 update_dummy_wch(t)
 
-"""
-Parameters
-"""
+# PARAMETERS
+
 container_name = t.add_parameter(Parameter(
     "ContainerName",
     Type="String",
@@ -45,7 +44,7 @@ scr_hostname = t.add_parameter(Parameter(
 ecr = t.add_parameter(Parameter(
     "Ecr",
     Type="String",
-    Description="ECR",
+    Description="ECR repository",
     Default="632826021673.dkr.ecr.eu-west-1.amazonaws.com"
 ))
 
@@ -55,16 +54,6 @@ ecs_stack = t.add_parameter(Parameter(
     Description="ECS Stackname",
     Default="ecs-stateless"
 ))
-
-encrypt_lambda_stack = t.add_parameter(Parameter(
-    "EncryptLambdaStack",
-    Type="String",
-    Description="Encrypt Lambda Stackname",
-    Default="cfn-encrypt"
-))
-
-encrypt_lambda_stack_condition = "EncryptLambdaStackCondition"
-t.add_condition(encrypt_lambda_stack_condition, Not(Equals("", Ref(encrypt_lambda_stack))))
 
 family = t.add_parameter(Parameter(
     "Family",
@@ -101,6 +90,16 @@ network_stack = t.add_parameter(Parameter(
     Default="UAT-network"
 ))
 
+encrypt_lambda_stack = t.add_parameter(Parameter(
+    "EncryptLambdaStack",
+    Type="String",
+    Description="Encrypt Lambda Stackname",
+    Default="cfn-encrypt"
+))
+
+encrypt_lambda_stack_condition = "EncryptLambdaStackCondition"
+t.add_condition(encrypt_lambda_stack_condition, Not(Equals("", Ref(encrypt_lambda_stack))))
+
 service_path = t.add_parameter(Parameter(
     "ServicePath",
     Type="String",
@@ -111,7 +110,7 @@ service_path = t.add_parameter(Parameter(
 service_host = t.add_parameter(Parameter(
     "ServiceHost",
     Type="String",
-    Description="Hostname for the listener (optional)",
+    Description="Optional: Hostname for the listener",
     Default=""
 ))
 
@@ -160,18 +159,53 @@ stack_env = t.add_parameter(Parameter(
 is_prod = "IsProd"
 t.add_condition(is_prod, Equals("PROD", Ref(stack_env)))
 
+# METADATA
+
+t.add_metadata({
+    'AWS::CloudFormation::Interface': {
+        'ParameterGroups': [
+            {
+                'Label': {
+                    'default': 'Container',
+                },
+                'Parameters': [
+                    container_name.title,
+                    container_port.title,
+                    family.title,
+                    scr_hostname.title,
+                    ecr.title,
+                    ecs_stack.title,
+                    image_name.title,
+                    image_tag.title,
+                    service_path.title,
+                    health_check_path.title,
+                    autoscaling_max.title,
+                    autoscaling_min.title,
+                    listener_priority.title,
+                    network_stack.title,
+                    encrypt_lambda_stack.title
+                ]
+            },
+            {
+                'Label': {
+                    'default': 'Optional',
+                },
+                'Parameters': [
+                    certificate_arn.title,
+                    service_host.title,
+                ]
+            },
+        ]
+    }
+})
+
 log_group = t.add_resource(logs.LogGroup(
     "LogGroup",
     LogGroupName=Ref("AWS::StackName"),
     RetentionInDays=60
 ))
 
-"""
-Roles
- - TaskRole
- - ServiceRole
- - AutoscaleRole
-"""
+# ROLES
 
 task_role = t.add_resource(iam.Role(
     "TaskRole",

@@ -1,5 +1,7 @@
 version: 0.2
-
+env:
+  variables:
+    SHELL: "/bin/bash"
 phases:
   install:
     commands:
@@ -26,7 +28,6 @@ phases:
       - python ${IMAGE_REPO_NAME}-service.py > ../${IMAGE_REPO_NAME}-service.template.tmp
       - cd ..
       - echo Build completed on `date`
-
   post_build:
     commands:
       - echo Testing image
@@ -34,7 +35,6 @@ phases:
       - echo Pushing the Docker image and renaming template...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - mv ${IMAGE_REPO_NAME}-service.template.tmp ${IMAGE_REPO_NAME}-service.template
-
 artifacts:
   files:
     - 'ecs-apache-service.template'
