@@ -80,7 +80,7 @@ alb_stack = t.add_parameter(Parameter(
     "AlbStack",
     Type="String",
     Description="ALB stack name",
-    Default="ecs-stateless"
+    Default="UAT-alb"
 ))
 
 ecs_stack = t.add_parameter(Parameter(

@@ -1,5 +1,6 @@
 {
   "Parameters": {
+    "AlbStack": "UAT-alb",
     "ContainerName": "ecs-apache",
     "ContainerPort": "80",
     "Ecr": "632826021673.dkr.ecr.eu-west-1.amazonaws.com",
