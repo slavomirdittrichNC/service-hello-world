@@ -48,13 +48,6 @@ ecr = t.add_parameter(Parameter(
     Default="632826021673.dkr.ecr.eu-west-1.amazonaws.com"
 ))
 
-ecs_stack = t.add_parameter(Parameter(
-    "EcsStack",
-    Type="String",
-    Description="ECS Stackname",
-    Default="ecs-stateless"
-))
-
 family = t.add_parameter(Parameter(
     "Family",
     Type="String",
@@ -83,6 +76,20 @@ listener_priority = t.add_parameter(Parameter(
     Default="10"
 ))
 
+alb_stack = t.add_parameter(Parameter(
+    "AlbStack",
+    Type="String",
+    Description="ALB stack name",
+    Default="ecs-stateless"
+))
+
+ecs_stack = t.add_parameter(Parameter(
+    "EcsStack",
+    Type="String",
+    Description="ECS stack name",
+    Default="ecs-stateless"
+))
+
 network_stack = t.add_parameter(Parameter(
     "NetworkStack",
     Type="String",
@@ -93,7 +100,7 @@ network_stack = t.add_parameter(Parameter(
 encrypt_lambda_stack = t.add_parameter(Parameter(
     "EncryptLambdaStack",
     Type="String",
-    Description="Encrypt Lambda Stackname",
+    Description="Encrypt Lambda stack name",
     Default="cfn-encrypt"
 ))
 
@@ -174,7 +181,6 @@ t.add_metadata({
                     family.title,
                     scr_hostname.title,
                     ecr.title,
-                    ecs_stack.title,
                     image_name.title,
                     image_tag.title,
                     service_path.title,
@@ -182,8 +188,17 @@ t.add_metadata({
                     autoscaling_max.title,
                     autoscaling_min.title,
                     listener_priority.title,
+                ]
+            },
+            {
+                'Label': {
+                    'default': 'Dependent stacks',
+                },
+                'Parameters': [
+                    alb_stack.title,
+                    encrypt_lambda_stack.title,
+                    ecs.title,
                     network_stack.title,
-                    encrypt_lambda_stack.title
                 ]
             },
             {
@@ -443,7 +458,7 @@ task_definition = t.add_resource(ecs.TaskDefinition(
                 ),
                 ecs.Environment(
                     Name="ALB",
-                    Value=ImportValue(Sub("${EcsStack}-AppLbDNSName"))
+                    Value=ImportValue(Sub("${AlbStack}-AppLbDNSName"))
                 )
             ],
         )
@@ -459,7 +474,7 @@ We need new listeners
 #     Port=Ref(container_port),
 #     Protocol="HTTP",
 #     #    LoadBalancerArn=Ref(app_lb),
-#     LoadBalancerArn=ImportValue(Sub("${EcsStack}-AppLb")),
+#     LoadBalancerArn=ImportValue(Sub("${AlbStack}-AppLb")),
 #     DefaultActions=[elasticloadbalancingv2.Action(
 #         Type="forward",
 #         TargetGroupArn=Ref(target_group)
@@ -493,7 +508,7 @@ listener_rule1 = t.add_resource(elasticloadbalancingv2.ListenerRule(
            )
     ],
     # ListenerArn=Ref(app_lb_listener),
-    ListenerArn=ImportValue(Sub("${EcsStack}-AppLbListenerPublic80a")),
+    ListenerArn=ImportValue(Sub("${AlbStack}-AppLbListenerPublic80a")),
     Priority=Ref(listener_priority)
 ))
 
@@ -520,7 +535,7 @@ listener_rule2 = t.add_resource(elasticloadbalancingv2.ListenerRule(
            )
     ],
     # ListenerArn=Ref(app_lb_listener),
-    ListenerArn=ImportValue(Sub("${EcsStack}-AppLbListenerPublic443")),
+    ListenerArn=ImportValue(Sub("${AlbStack}-AppLbListenerPublic443")),
     Priority=Ref(listener_priority)
 ))
 
@@ -535,7 +550,7 @@ for az in ["A", "B", "C"]:
             IpProtocol="6",
             FromPort=80,
             ToPort=80,
-            GroupId=ImportValue(Sub("${EcsStack}-SgAlbPublicGroupId"))
+            GroupId=ImportValue(Sub("${AlbStack}-SgAlbPublicGroupId"))
         ),
     )
     sg_alb_public_ingress_rules443[az] = t.add_resource(
@@ -546,7 +561,7 @@ for az in ["A", "B", "C"]:
             IpProtocol="6",
             FromPort=443,
             ToPort=443,
-            GroupId=ImportValue(Sub("${EcsStack}-SgAlbPublicGroupId"))
+            GroupId=ImportValue(Sub("${AlbStack}-SgAlbPublicGroupId"))
         )
     )
 
