@@ -197,7 +197,7 @@ t.add_metadata({
                 'Parameters': [
                     alb_stack.title,
                     encrypt_lambda_stack.title,
-                    ecs.title,
+                    ecs_stack.title,
                     network_stack.title,
                 ]
             },
