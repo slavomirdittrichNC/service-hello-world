@@ -508,7 +508,7 @@ listener_rule1 = t.add_resource(elasticloadbalancingv2.ListenerRule(
            )
     ],
     # ListenerArn=Ref(app_lb_listener),
-    ListenerArn=ImportValue(Sub("${AlbStack}-AlbPrivateListener80")),
+    ListenerArn=ImportValue(Sub("${AlbStack}-AlbPublicListener80")),
     Priority=Ref(listener_priority)
 ))
 
@@ -535,7 +535,7 @@ listener_rule2 = t.add_resource(elasticloadbalancingv2.ListenerRule(
            )
     ],
     # ListenerArn=Ref(app_lb_listener),
-    ListenerArn=ImportValue(Sub("${AlbStack}-AlbPrivateListener443")),
+    ListenerArn=ImportValue(Sub("${AlbStack}-AlbPublicListener443")),
     Priority=Ref(listener_priority)
 ))
 
