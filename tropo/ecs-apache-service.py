@@ -22,86 +22,72 @@ update_dummy_wch(t)
 
 container_name = t.add_parameter(Parameter(
     "ContainerName",
+    AllowedPattern="^.+$",
     Type="String",
     Description="Container name",
-    Default="ecs-apache"
+    Default="NONE"
 ))
 
 container_port = t.add_parameter(Parameter(
     "ContainerPort",
     Type="Number",
     Description="Container port",
-    Default="80"
-))
-
-scr_hostname = t.add_parameter(Parameter(
-    "ScrHostname",
-    Default="http://aws.test.stack/",
-    Description="Url",
-    Type="String"
+    Default=80
 ))
 
 ecr = t.add_parameter(Parameter(
     "Ecr",
+    AllowedPattern="^.+$",
     Type="String",
     Description="ECR repository",
-    Default="632826021673.dkr.ecr.eu-west-1.amazonaws.com"
+    Default="NONE"
 ))
 
 family = t.add_parameter(Parameter(
     "Family",
+    AllowedPattern="^.+$",
     Type="String",
     Description="Task family",
-    Default="ecs-apache"
-))
-
-image_name = t.add_parameter(Parameter(
-    "ImageName",
-    Type="String",
-    Description="Docker image name",
-    Default="ecs-apache"
-))
-
-image_tag = t.add_parameter(Parameter(
-    "ImageTag",
-    Type="String",
-    Description="Docker image tag",
-    Default="latest"
+    Default="NONE"
 ))
 
 listener_priority = t.add_parameter(Parameter(
     "ListenerPriority",
     Description="Listener Rule Priority, must be unique across listeners",
     Type="Number",
-    Default="10"
+    Default=10
 ))
 
 alb_stack = t.add_parameter(Parameter(
     "AlbStack",
+    AllowedPattern="^.+$",
     Type="String",
     Description="ALB stack name",
-    Default="UAT-alb"
+    Default="NONE"
 ))
 
 ecs_stack = t.add_parameter(Parameter(
     "EcsStack",
+    AllowedPattern="^.+$",
     Type="String",
     Description="ECS stack name",
-    Default="ecs-stateless"
+    Default="NONE"
 ))
 
 network_stack = t.add_parameter(Parameter(
     "NetworkStack",
+    AllowedPattern="^.+$",
     Type="String",
     Description="Network stack name",
-    Default="UAT-network"
+    Default="NONE"
 ))
 
 encrypt_lambda_stack = t.add_parameter(Parameter(
     "EncryptLambdaStack",
+    AllowedPattern="^.+$",
     Type="String",
     Description="Encrypt Lambda stack name",
-    Default="cfn-encrypt"
+    Default="NONE"
 ))
 
 encrypt_lambda_stack_condition = "EncryptLambdaStackCondition"
@@ -109,50 +95,56 @@ t.add_condition(encrypt_lambda_stack_condition, Not(Equals("", Ref(encrypt_lambd
 
 service_path = t.add_parameter(Parameter(
     "ServicePath",
+    AllowedPattern="^.+$",
     Type="String",
-    Description="Path portion of the service URL",
-    Default="/apache"
+    Description="Optional: Path portion of the service URL (NONE for empty)",
+    Default="NONE"
 ))
+
+service_path_condition = "ServicePathCondition"
+t.add_condition(service_path_condition, Not(Equals(Ref(service_path), service_path.Default)))
 
 service_host = t.add_parameter(Parameter(
     "ServiceHost",
+    AllowedPattern="^.+$",
     Type="String",
-    Description="Optional: Hostname for the listener",
-    Default=""
+    Description="Optional: Hostname for the listener (NONE for empty)",
+    Default="NONE"
 ))
 
 service_host_condition = "ServiceHostCondition"
-t.add_condition(service_host_condition, Not(Equals("", Ref(service_host))))
+t.add_condition(service_host_condition, Not(Equals(Ref(service_host), service_host.Default)))
 
 certificate_arn = t.add_parameter(Parameter(
     "CertificateArn",
+    AllowedPattern="^.+$",
     Type="String",
-    Description="Optional: When certificate ARN is provided, 443 listener is created on ALB",
-    Default=""
+    Description="Optional: When certificate ARN is provided, 443 listener is created on ALB (NONE for none)",
+    Default="NONE"
 ))
 
 certificate_arn_condition = "CertificateArnCondition"
-t.add_condition(certificate_arn_condition, Not(Equals(certificate_arn.Default, Ref(certificate_arn))))
+t.add_condition(certificate_arn_condition, Not(Equals(Ref(certificate_arn), certificate_arn.Default)))
 
 autoscaling_max = t.add_parameter(Parameter(
     "AutoscalingMax",
     Type="Number",
     Description="Maximum number of tasks to autoscale",
-    Default=2
+    Default=3
 ))
 
 autoscaling_min = t.add_parameter(Parameter(
     "AutoscalingMin",
     Type="Number",
     Description="Minimum number of tasks to autoscale",
-    Default=2
+    Default=3
 ))
 
 health_check_path = t.add_parameter(Parameter(
     "HealthCheckPath",
     Type="String",
     Description="Healthcheck path",
-    Default="/health/"
+    Default="NONE"
 ))
 
 stack_env = t.add_parameter(Parameter(
@@ -165,6 +157,24 @@ stack_env = t.add_parameter(Parameter(
 
 is_prod = "IsProd"
 t.add_condition(is_prod, Equals("PROD", Ref(stack_env)))
+
+# Defined in imageconfig.conf
+
+image_name = t.add_parameter(Parameter(
+    "ImageName",
+    AllowedPattern="^.+$",
+    Type="String",
+    Description="Docker image name",
+    Default="NONE"
+))
+
+image_tag = t.add_parameter(Parameter(
+    "ImageTag",
+    AllowedPattern="^.+$",
+    Type="String",
+    Description="Docker image tag",
+    Default="NONE"
+))
 
 # METADATA
 
@@ -179,11 +189,11 @@ t.add_metadata({
                     container_name.title,
                     container_port.title,
                     family.title,
-                    scr_hostname.title,
                     ecr.title,
                     image_name.title,
                     image_tag.title,
                     service_path.title,
+                    service_host.title,
                     health_check_path.title,
                     autoscaling_max.title,
                     autoscaling_min.title,
@@ -207,7 +217,6 @@ t.add_metadata({
                 },
                 'Parameters': [
                     certificate_arn.title,
-                    service_host.title,
                 ]
             },
         ]
@@ -453,10 +462,6 @@ task_definition = t.add_resource(ecs.TaskDefinition(
                     Value=Ref("AWS::Region")
                 ),
                 ecs.Environment(
-                    Name="SCR_HOST",
-                    Value=Ref(scr_hostname)
-                ),
-                ecs.Environment(
                     Name="ALB",
                     Value=ImportValue(Sub("${AlbStack}-AlbPrivateDNSName"))
                 )
@@ -464,23 +469,6 @@ task_definition = t.add_resource(ecs.TaskDefinition(
         )
     ],
 ))
-
-"""
-We need new listeners
-"""
-
-# app_lb_listener = t.add_resource(elasticloadbalancingv2.Listener(
-#     "AppLbListener1",
-#     Port=Ref(container_port),
-#     Protocol="HTTP",
-#     #    LoadBalancerArn=Ref(app_lb),
-#     LoadBalancerArn=ImportValue(Sub("${AlbStack}-AppLb")),
-#     DefaultActions=[elasticloadbalancingv2.Action(
-#         Type="forward",
-#         TargetGroupArn=Ref(target_group)
-#     )]
-# ))
-
 
 """
 Add the TargetGroup to a Listener on the ALB
@@ -495,19 +483,25 @@ listener_rule1 = t.add_resource(elasticloadbalancingv2.ListenerRule(
         )
     ],
     Conditions=[
-        elasticloadbalancingv2.Condition(
-            Field="path-pattern",
-            Values=[Ref(service_path)]
-        ),
+        If(service_path_condition,
+           elasticloadbalancingv2.Condition(
+               Field="path-pattern",
+               Values=[
+                   Ref(service_path),
+               ]
+           ),
+           Ref("AWS::NoValue")
+           ),
         If(service_host_condition,
            elasticloadbalancingv2.Condition(
                Field="host-header",
-               Values=[Ref(service_host)]
+               Values=[
+                   Ref(service_host),
+               ]
            ),
            Ref("AWS::NoValue")
-           )
+           ),
     ],
-    # ListenerArn=Ref(app_lb_listener),
     ListenerArn=ImportValue(Sub("${AlbStack}-AlbPublicListener80")),
     Priority=Ref(listener_priority)
 ))
@@ -522,19 +516,25 @@ listener_rule2 = t.add_resource(elasticloadbalancingv2.ListenerRule(
         )
     ],
     Conditions=[
-        elasticloadbalancingv2.Condition(
-            Field="path-pattern",
-            Values=[Ref(service_path)]
-        ),
+        If(service_path_condition,
+           elasticloadbalancingv2.Condition(
+               Field="path-pattern",
+               Values=[
+                   Ref(service_path),
+               ]
+           ),
+           Ref("AWS::NoValue")
+           ),
         If(service_host_condition,
            elasticloadbalancingv2.Condition(
                Field="host-header",
-               Values=[Ref(service_host)]
+               Values=[
+                   Ref(service_host),
+               ]
            ),
            Ref("AWS::NoValue")
-           )
+           ),
     ],
-    # ListenerArn=Ref(app_lb_listener),
     ListenerArn=ImportValue(Sub("${AlbStack}-AlbPublicListener443")),
     Priority=Ref(listener_priority)
 ))
