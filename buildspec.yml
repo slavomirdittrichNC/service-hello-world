@@ -24,7 +24,7 @@ phases:
       - echo Build completed on `date`
       - . ./buildconfig.sh
       - echo Cfn build started on `date`
-      - python tropo/${IMAGE_REPO_NAME}-service.py > ${IMAGE_REPO_NAME}-service.template.tmp
+      - python tropo/${IMAGE_REPO_NAME}.py > ${IMAGE_REPO_NAME}.template.tmp
       - echo Build completed on `date`
   post_build:
     commands:
@@ -32,10 +32,10 @@ phases:
       - echo Test passed
       - echo Pushing the Docker image and renaming template...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-      - mv ${IMAGE_REPO_NAME}-service.template.tmp ${IMAGE_REPO_NAME}-service.template
+      - mv ${IMAGE_REPO_NAME}.template.tmp ${IMAGE_REPO_NAME}.template
 artifacts:
   files:
-    - 'ecs-apache-service.template'
+    - 'service-hello-world.template'
     - 'UAT-config.json'
     - 'PROD-config.json'
     - 'imageconfig.json'
