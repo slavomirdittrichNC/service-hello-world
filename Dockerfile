@@ -5,7 +5,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y apache2
 RUN mkdir -p /var/www/html/health
 RUN echo "OK" >> /var/www/html/health/index.html
 
-RUN mkdir /var/www/html/
+RUN rm -rf /var/www/html
+RUN mkdir -p /var/www/html
 
 ADD src/* /var/www/html/
 
