@@ -1,15 +1,5 @@
-FROM debian:stable
+FROM httpd:2.4
+COPY src/ /usr/local/apache2/htdocs/
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y apache2
-
-RUN mkdir -p /var/www/html/health
-RUN echo "OK" >> /var/www/html/health/index.html
-
-RUN rm -rf /var/www/html
-RUN mkdir -p /var/www/html
-
-COPY src/ /var/www/html/
-
-EXPOSE 80
-
-#CMD ["/usr/sbin/apache2ctl","-D","FOREGROUND"]
+RUN mkdir -p /usr/local/apache2/htdocs/health
+RUN echo "OK" >> /usr/local/apache2/htdocs/health/index.html

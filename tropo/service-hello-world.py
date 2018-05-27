@@ -439,11 +439,11 @@ task_definition = t.add_resource(ecs.TaskDefinition(
                 ),
             ],
             Essential=True,
-            Command=[
-                "/usr/sbin/apache2ctl",
-                "-D",
-                "FOREGROUND"
-            ],
+            # Command=[
+            #     "/usr/sbin/apache2ctl",
+            #     "-D",
+            #     "FOREGROUND"
+            # ],
             Name=Ref(container_name),
             Image=Join("", [
                 Ref(ecr), "/",
