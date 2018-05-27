@@ -8,7 +8,7 @@ RUN echo "OK" >> /var/www/html/health/index.html
 RUN rm -rf /var/www/html
 RUN mkdir -p /var/www/html
 
-ADD src/* /var/www/html/
+COPY src/ /var/www/html/
 
 EXPOSE 80
 
