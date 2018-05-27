@@ -1,6 +1,45 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
 <body>
-<h1>Apache - Hello World!</h1>
-<h2>This is a version 1.</h2>
+
+<body>
+
+<div class="container">
+    <div class="header clearfix">
+        <h3 class="text-muted">AWS Summit Benelux 2018</h3>
+    </div>
+
+    <div class="jumbotron">
+        <h1>Hello World</h1>
+        <h3>Version 1</h3>
+        <p class="lead">
+            This is a simple web application running in a Docker container on a stateless ECS Cluster with the following properties:
+        <ul>
+            <li>Autoscaling makes sure that there are always 3 running instances.</li>
+            <li>Instances are spread across multiple Availability Zones.</li>
+            <li>Application Load Balancer distributes load equally between all instances.</li>
+        </ul>
+        </p>
+        <p><a class="btn btn-lg btn-success" href="http://www.nordcloud.com" role="button">Do you want to know more? Contact us!</a></p>
+    </div>
+
+    <h3>ECS Architecture</h3>
+    <img src="images/ECS.png" width="80%"/>
+
+    <h3>Deployment Workflow</h3>
+    <img src="images/Deployment.png" width="80%"/>
+
+    <footer class="footer">
+        <p>&copy; 2018 Nordcloud</p>
+    </footer>
+
 </body>
 </html>
