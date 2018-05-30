@@ -404,6 +404,12 @@ target_group = t.add_resource(elasticloadbalancingv2.TargetGroup(
     Matcher=elasticloadbalancingv2.Matcher(HttpCode="200,302"),
     UnhealthyThresholdCount="3",
     VpcId=ImportValue(Sub("${NetworkStack}-Vpc")),
+    TargetGroupAttributes=[
+        elasticloadbalancingv2.TargetGroupAttribute(
+            Key="deregistration_delay.timeout_seconds",
+            Value="10",
+        ),
+    ],
     Tags=[{
         "Key": "TargetGroupName",
         "Value": Join("", ["Tg-", Ref(container_name)])
@@ -595,7 +601,7 @@ service = t.add_resource(ecs.Service(
     Role=Ref(service_role),
     TaskDefinition=Ref(task_definition),
     DeploymentConfiguration=ecs.DeploymentConfiguration(
-        MaximumPercent="100",
+        MaximumPercent="200",
         MinimumHealthyPercent="50"
     ),
     PlacementConstraints=[
